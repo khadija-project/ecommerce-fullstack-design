@@ -4,11 +4,11 @@ import { protect, adminOnly } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// GET /api/products?search=&category=
+// GET /api/products?search=&category=&minPrice=&maxPrice=
 router.get("/", async (req, res) => {
   try {
-    const { search, category } = req.query;
-    const products = await ProductRepo.getAll({ search, category });
+    const { search, category, minPrice, maxPrice } = req.query;
+    const products = await ProductRepo.getAll({ search, category, minPrice, maxPrice });
     res.json(products);
   } catch (err) {
     res.status(500).json({ message: err.message });

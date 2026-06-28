@@ -4,7 +4,9 @@ import api from "../api/api.js";
 const emptyForm = { name: "", price: "", image: "", description: "", category: "", stock: "", featured: false };
 
 export default function Admin() {
+  const [tab, setTab] = useState("products");
   const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [error, setError] = useState("");
@@ -13,7 +15,11 @@ export default function Admin() {
     api.get("/products").then((res) => setProducts(res.data));
   };
 
-  useEffect(() => { loadProducts(); }, []);
+  const loadOrders = () => {
+    api.get("/orders").then((res) => setOrders(res.data)).catch(() => setOrders([]));
+  };
+
+  useEffect(() => { loadProducts(); loadOrders(); }, []);
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); };
 
@@ -58,7 +64,55 @@ export default function Admin() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 grid lg:grid-cols-3 gap-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="flex gap-6 border-b border-gray-200 mb-6 text-sm font-medium">
+        <button
+          onClick={() => setTab("products")}
+          className={`pb-3 ${tab === "products" ? "text-brand-accent border-b-2 border-brand-accent" : "text-gray-500"}`}
+        >
+          Products
+        </button>
+        <button
+          onClick={() => setTab("orders")}
+          className={`pb-3 ${tab === "orders" ? "text-brand-accent border-b-2 border-brand-accent" : "text-gray-500"}`}
+        >
+          Orders ({orders.length})
+        </button>
+      </div>
+
+      {tab === "orders" ? (
+        <div className="flex flex-col gap-3">
+          {orders.length === 0 ? (
+            <p className="text-gray-500">No orders placed yet.</p>
+          ) : (
+            orders.map((order) => (
+              <div key={order._id} className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-xs text-gray-400">#{order._id}</span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 capitalize">
+                    {order.status}
+                  </span>
+                </div>
+                <p className="text-sm font-medium">{order.shipping?.fullName}</p>
+                <p className="text-sm text-gray-500">{order.shipping?.address}, {order.shipping?.city} · {order.shipping?.phone}</p>
+                <div className="mt-2 text-sm text-gray-600">
+                  {order.items?.map((item, idx) => (
+                    <div key={idx} className="flex justify-between">
+                      <span>{item.name} × {item.qty}</span>
+                      <span>${(item.price * item.qty).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between font-bold border-t border-gray-100 mt-2 pt-2">
+                  <span>Total</span>
+                  <span>${order.total?.toFixed(2)}</span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : (
+      <div className="grid lg:grid-cols-3 gap-8">
       {/* Form */}
       <form onSubmit={handleSubmit} className="lg:col-span-1 bg-white border border-gray-200 rounded-lg p-5 flex flex-col gap-3 h-fit">
         <h2 className="font-bold text-lg">{editingId ? "Edit Product" : "Add Product"}</h2>
@@ -118,6 +172,8 @@ export default function Admin() {
           ))}
         </div>
       </div>
+      </div>
+      )}
     </div>
   );
 }

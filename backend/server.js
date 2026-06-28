@@ -5,6 +5,8 @@ import { connectMongo } from "./config/db.js";
 import { initJsonDb } from "./data/jsonDb.js";
 import productRoutes from "./routes/products.js";
 import authRoutes from "./routes/auth.js";
+import newsletterRoutes from "./routes/newsletter.js";
+import orderRoutes from "./routes/orders.js";
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ if (process.env.USE_MONGO === "true") {
 app.get("/", (req, res) => res.json({ status: "API running" }));
 app.use("/api/products", productRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Centralized error handler
 app.use((err, req, res, next) => {

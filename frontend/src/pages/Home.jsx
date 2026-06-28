@@ -3,6 +3,14 @@ import { Link } from "react-router-dom";
 import api from "../api/api.js";
 import ProductCard from "../components/ProductCard.jsx";
 
+const CATEGORY_TILES = [
+  { name: "Footwear", icon: "👟" },
+  { name: "Bags", icon: "👜" },
+  { name: "Electronics", icon: "🎧" },
+  { name: "Apparel", icon: "👕" },
+  { name: "Accessories", icon: "🕶️" },
+];
+
 export default function Home() {
   const [featured, setFeatured] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +39,23 @@ export default function Home() {
           >
             Shop Now
           </Link>
+        </div>
+      </section>
+
+      {/* Shop by Category */}
+      <section className="max-w-7xl mx-auto px-4 py-10">
+        <h2 className="text-xl md:text-2xl font-bold mb-6">Shop by Category</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {CATEGORY_TILES.map((cat) => (
+            <Link
+              key={cat.name}
+              to={`/products?category=${cat.name}`}
+              className="flex flex-col items-center gap-2 bg-white border border-gray-200 rounded-xl py-6 hover:border-brand-accent hover:shadow-sm transition-all"
+            >
+              <span className="text-3xl">{cat.icon}</span>
+              <span className="text-sm font-medium">{cat.name}</span>
+            </Link>
+          ))}
         </div>
       </section>
 

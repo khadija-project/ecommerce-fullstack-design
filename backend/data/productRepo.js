@@ -5,11 +5,19 @@ import db from "../data/jsonDb.js";
 const useMongo = () => process.env.USE_MONGO === "true";
 
 export const ProductRepo = {
-  async getAll({ search, category } = {}) {
+  async getAll({ search, category, minPrice, maxPrice } = {}) {
+    const min = minPrice !== undefined ? Number(minPrice) : undefined;
+    const max = maxPrice !== undefined ? Number(maxPrice) : undefined;
+
     if (useMongo()) {
       const query = {};
       if (category) query.category = category;
       if (search) query.name = { $regex: search, $options: "i" };
+      if (min !== undefined || max !== undefined) {
+        query.price = {};
+        if (min !== undefined) query.price.$gte = min;
+        if (max !== undefined) query.price.$lte = max;
+      }
       return Product.find(query).sort({ createdAt: -1 });
     }
     await db.read();
@@ -23,6 +31,8 @@ export const ProductRepo = {
           p.category.toLowerCase().includes(s)
       );
     }
+    if (min !== undefined) items = items.filter((p) => p.price >= min);
+    if (max !== undefined) items = items.filter((p) => p.price <= max);
     return items;
   },
 
