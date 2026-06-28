@@ -55,6 +55,9 @@ export default function Admin() {
       stock: product.stock,
       featured: !!product.featured,
     });
+    // The form lives at the top of the page — without this, editing a
+    // product further down the list looks like nothing happened.
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = async (id) => {
